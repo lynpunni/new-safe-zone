@@ -11,7 +11,8 @@ import {
   X,
   MessageSquare,
   Sparkles,
-  Plus
+  Plus,
+  Menu
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -51,6 +52,7 @@ export default function App() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [chatLoading, setChatLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,6 +85,7 @@ export default function App() {
   const createNewChat = () => {
     setCurrentSessionId(null);
     setMessages([]);
+    setIsSidebarOpen(false);
   };
 
   const loadSession = (id: string) => {
@@ -91,6 +94,7 @@ export default function App() {
       setCurrentSessionId(id);
       setMessages(session.messages || []);
     }
+    setIsSidebarOpen(false);
   };
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -330,9 +334,25 @@ export default function App() {
 
   return (
     <div className="h-screen flex bg-organic-base font-sans overflow-hidden">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-[300px] flex-shrink-0 bg-organic-surface border-r border-border-soft p-6 flex flex-col z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-        <div className="font-serif text-3xl mb-12 tracking-wide text-accent-olive">Safe Zone.</div>
+      <aside className={`fixed inset-y-0 left-0 w-[300px] flex-shrink-0 bg-organic-surface border-r border-border-soft p-6 flex flex-col z-50 shadow-2xl lg:shadow-[4px_0_24px_rgba(0,0,0,0.02)] lg:relative transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="flex items-center justify-between mb-12">
+          <div className="font-serif text-3xl tracking-wide text-accent-olive">Safe Zone.</div>
+          <button 
+            className="lg:hidden p-1 text-text-secondary hover:text-text-primary transition-colors"
+            onClick={() => setIsSidebarOpen(false)}
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
         
         <div className="flex-1 space-y-8 overflow-y-auto pr-2">
           <div>
@@ -379,14 +399,20 @@ export default function App() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col relative p-10 overflow-hidden bg-organic-base">
-        <div className="relative z-10 mb-8 border-b border-border-soft pb-4 flex items-center gap-4">
-          <div className="w-12 h-12 bg-white card-shadow rounded-full flex items-center justify-center text-accent-olive">
-            <Sparkles className="w-5 h-5" />
+      <main className="flex-1 flex flex-col relative p-4 md:p-10 overflow-hidden bg-organic-base w-full">
+        <div className="relative z-10 mb-4 md:mb-8 border-b border-border-soft pb-4 flex items-center gap-3 md:gap-4 mt-2 md:mt-0">
+          <button 
+            className="lg:hidden p-2 text-text-secondary hover:text-text-primary transition-colors rounded-full card-shadow bg-white"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-white card-shadow rounded-full flex items-center justify-center text-accent-olive shrink-0">
+            <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
           </div>
-          <div>
-            <h1 className="font-serif text-3xl text-text-primary mb-1">พื้นที่ปลอดภัย</h1>
-            <p className="text-text-secondary text-sm">พร้อมรับฟังทุกเรื่องราวของคุณ เล่าให้ฟังได้เลย</p>
+          <div className="flex-1 overflow-hidden">
+            <h1 className="font-serif text-2xl md:text-3xl text-text-primary md:mb-1 truncate">พื้นที่ปลอดภัย</h1>
+            <p className="text-text-secondary text-xs md:text-sm truncate">พร้อมรับฟังทุกเรื่องราวของคุณ เล่าให้ฟังได้เลย</p>
           </div>
         </div>
 
@@ -451,7 +477,7 @@ export default function App() {
         </div>
 
         {/* Input Area */}
-        <div className="relative z-10 mt-6 shrink-0 max-w-4xl mx-auto w-full">
+        <div className="relative z-10 mt-4 md:mt-6 shrink-0 max-w-4xl mx-auto w-full pb-2 md:pb-0">
           <AnimatePresence>
             {selectedImage && (
               <motion.div 
@@ -470,12 +496,12 @@ export default function App() {
 
           <form 
             onSubmit={sendMessage}
-            className="bg-organic-surface shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-border-soft rounded-[32px] p-2 pl-6 flex items-center gap-4 group focus-within:border-accent-olive/40 transition-all duration-300"
+            className="bg-organic-surface shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-border-soft rounded-[32px] p-2 pl-4 md:pl-6 flex items-center gap-2 md:gap-4 group focus-within:border-accent-olive/40 transition-all duration-300"
           >
             <button 
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="text-text-secondary hover:text-accent-olive transition-colors font-light"
+              className="text-text-secondary hover:text-accent-olive transition-colors font-light ml-1"
             >
               <ImageIcon className="w-6 h-6" />
             </button>
@@ -486,15 +512,15 @@ export default function App() {
               type="text" 
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="พิมพ์สิ่งที่คุณรู้สึกอยู่ตอนนี้..."
-              className="flex-1 bg-transparent border-none focus:ring-0 text-[16px] py-3 outline-none text-text-primary placeholder:text-text-secondary/70 h-[56px]"
+              placeholder="พิมพ์ความรู้สึกของคุณ..."
+              className="flex-1 bg-transparent border-none focus:ring-0 text-[14px] md:text-[16px] py-3 outline-none text-text-primary placeholder:text-text-secondary/70 h-[56px]"
             />
             <button 
               type="submit"
               disabled={(!input.trim() && !selectedImage) || chatLoading}
-              className="bg-accent-olive text-white px-8 py-4 rounded-[24px] font-medium text-[15px] hover:bg-accent-olive/90 disabled:opacity-40 transition-all flex items-center gap-2"
+              className="bg-accent-olive text-white px-5 md:px-8 py-3 md:py-4 rounded-[24px] font-medium text-[15px] hover:bg-accent-olive/90 disabled:opacity-40 transition-all flex items-center gap-2 shrink-0"
             >
-              <Send className="w-4 h-4 ml-1" />
+              <Send className="w-4 h-4 md:ml-1" />
             </button>
           </form>
         </div>
