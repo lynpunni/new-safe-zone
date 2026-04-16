@@ -1,0 +1,6 @@
+{
+  "name": "Gemini Explorer",
+  "description": "A full-stack AI explorer with authentication and image-aware chatpowered by Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
